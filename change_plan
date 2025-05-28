@@ -1,0 +1,3 @@
+ResADの場合、例えばmvtecでtestする場合、visaの全データを用いてtrainしている。このときtrainをnormal+dataaug anomalt or normal + anomaly + dataaug anomalyにする?
+fewshotなので他のデータセットのクラスの異常にも対応できるようにしたいcutpasteよりはdream?dreamを物体があるに場所しか適応できないように変える。maskのデータはあるからperlinnoiseを生成してそこから絞り込み。
+  
