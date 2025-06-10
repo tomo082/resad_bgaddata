@@ -37,3 +37,10 @@ MVTEC_TO_BRATS = {'seen': ['bottle', 'cable', 'capsule', 'carpet', 'grid',
                              'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
                              'tile', 'toothbrush', 'transistor', 'wood', 'zipper'],
                  'unseen': ['brain']}
+
+MVTEC_TO_MVTEC = {'seen': ['bottle', 'cable', 'capsule', 'carpet', 'grid',
+                            'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
+                            'tile', 'toothbrush', 'transistor', 'wood', 'zipper'],
+                  'unseen': ['bottle', 'cable', 'capsule', 'carpet', 'grid',
+                             'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
+                             'tile', 'toothbrush', 'transistor', 'wood', 'zipper']}
