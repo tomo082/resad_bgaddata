@@ -108,6 +108,7 @@ def main(args):
         train_loss_total, total_num = 0, 0
         progress_bar = tqdm(total=len(train_loader))
         progress_bar.set_description(f"Epoch[{epoch}/{args.epochs}]")
+#data aug を適応するならここ? supervisedだからあまり意味ない?
         for step, batch in enumerate(train_loader):
             progress_bar.update(1)
             images, _, masks, class_names = batch
