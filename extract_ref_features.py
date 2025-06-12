@@ -226,4 +226,7 @@ if __name__ == '__main__':
     parser.add_argument('--save_dir', type=str, default="./ref_features/w50/mvtec_4shot")
     
     args = parser.parse_args()
-    main(args)
+    if args.mode == 'main':
+        main(args)
+    elif args.mode == 'main2':
+        main2(args)
