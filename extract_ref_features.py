@@ -219,11 +219,13 @@ def main2(args):
         np.save(os.path.join(args.save_dir, class_name, 'layer4.npy'), layer4_features.cpu().numpy())
         
         
+        
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', type=str, default="mvtec")
     parser.add_argument('--few_shot_dir', type=str, default="./4shot/mvtec")
     parser.add_argument('--save_dir', type=str, default="./ref_features/w50/mvtec_4shot")
+    parser.add_argument('--mode', type=str, default='main')
     
     args = parser.parse_args()
     if args.mode == 'main':
