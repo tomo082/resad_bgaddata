@@ -28,7 +28,7 @@ from utils import init_seeds, get_residual_features, get_mc_matched_ref_features
 from utils import BoundaryAverager
 from losses.loss import calculate_log_barrier_bi_occ_loss, calculate_orthogonal_regularizer
 from classes import VISA_TO_MVTEC, MVTEC_TO_VISA, MVTEC_TO_BTAD, MVTEC_TO_MVTEC3D
-from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS
+from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC
 
 warnings.filterwarnings('ignore')
 
