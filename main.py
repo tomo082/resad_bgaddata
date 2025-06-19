@@ -97,6 +97,10 @@ def main(args):
     #best_pro = 0　#-1になってしまうので変更
     best_img_auc = 0
     N_batch = 8192
+            
+    # 最良モデルのエポックで保存するためのデータ保持用
+    best_epoch_class_data = {}   
+            
     for epoch in range(args.epochs):
         vq_ops.train()
         constraintor.train()
@@ -175,6 +179,9 @@ def main(args):
         if (epoch + 1) % args.eval_freq == 0:
             s1_res, s2_res, s_res = [], [], []
             test_ref_features = load_mc_reference_features(args.test_ref_feature_dir, CLASSES['unseen'], args.device, args.num_ref_shot)
+            # 各クラスの評価結果とデータを一時的に保持する辞書
+            current_epoch_class_data_for_saving = {}
+                    
             for class_name in CLASSES['unseen']:
                 if class_name in MVTEC.CLASS_NAMES:
                     test_dataset = MVTEC(args.test_dataset_dir, class_name=class_name, train=False,
@@ -209,7 +216,10 @@ def main(args):
                 test_loader = DataLoader(
                     test_dataset, batch_size=1, shuffle=False, num_workers=8, drop_last=False
                 )
-                metrics = validate(args, encoder, vq_ops, constraintor, estimators, test_loader, test_ref_features[class_name], args.device, class_name)
+                #metrics = validate(args, encoder, vq_ops, constraintor, estimators, test_loader, test_ref_features[class_name], args.device, class_name)
+            　　metrics = validate(args, encoder, vq_ops, constraintor, estimators, test_loader, 
+                                   test_ref_features[class_name_eval], args.device, class_name_eval)
+                
                 img_auc, img_ap, img_f1_score, pix_auc, pix_ap, pix_f1_score, pix_aupro = metrics['scores']
                 
                 print("Epoch: {}, Class Name: {}, Image AUC | AP | F1_Score: {} | {} | {}, Pixel AUC | AP | F1_Score | AUPRO: {} | {} | {} | {}".format(
@@ -217,7 +227,12 @@ def main(args):
                 s1_res.append(metrics['scores1'])
                 s2_res.append(metrics['scores2'])
                 s_res.append(metrics['scores'])
-            
+                # 各クラスの評価結果から特徴量とラベルデータを一時的に保存
+                current_epoch_class_data_for_saving[class_name_eval] = {
+                    'features': metrics['features'],
+                    'anomaly_types': metrics['anomaly_types'],
+                    'gts_labels': metrics['gts_labels']
+                }            
             s1_res = np.array(s1_res)
             s2_res = np.array(s2_res)
             s_res = np.array(s_res)
@@ -238,6 +253,25 @@ def main(args):
                               'constraintor': constraintor.state_dict(),
                               'estimators': [estimator.state_dict() for estimator in estimators]}
                 torch.save(state_dict, os.path.join(args.checkpoint_path, f'{args.setting}_checkpoints.pth'))
+                # 新しい特徴量保存ディレクトリを作成
+                features_save_dir = os.path.join(args.checkpoint_path, 'features_for_analysis')
+                os.makedirs(features_save_dir, exist_ok=True) 
+                for class_name_to_save, data in current_epoch_class_data_for_saving.items():
+                    # クラス名の下にファイルを保存するパスを構築
+                    class_specific_save_dir = os.path.join(features_save_dir, class_name_to_save)
+                    os.makedirs(class_specific_save_dir, exist_ok=True)
+
+                    features_filename = os.path.join(class_specific_save_dir, f'epoch{epoch}_features.npy')
+                    anomaly_types_filename = os.path.join(class_specific_save_dir, f'epoch{epoch}_anomaly_types.npy')
+                    gts_labels_filename = os.path.join(class_specific_save_dir, f'epoch{epoch}_gts_labels.npy')
+
+                    np.save(features_filename, data['features'])
+                    np.save(anomaly_types_filename, data['anomaly_types'])
+                    np.save(gts_labels_filename, data['gts_labels'])
+                    print(f"  - クラス '{class_name_to_save}': Epoch {epoch} のデータを {class_specific_save_dir} に保存しました。")
+                
+                # 最良エポックのデータなので、今後の可視化のためにこれを覚えておく
+                best_epoch_class_data = current_epoch_class_data_for_saving.copy()
 
 
 def load_mc_reference_features(root_dir: str, class_names, device: torch.device, num_shot=4):
