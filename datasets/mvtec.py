@@ -66,11 +66,11 @@ class MVTECANO(Dataset):
         
         # load dataset
         if isinstance(self.class_name, str):
-            self.image_paths, self.labels, self.mask_paths, self.class_names = self._load_data(self.class_name)
+            self.image_paths, self.labels, self.mask_paths, self.class_names,self.anomaly_types = self._load_data(self.class_name)
         elif self.class_name is None:
-            self.image_paths, self.labels, self.mask_paths, self.class_names = self._load_all_data()
+            self.image_paths, self.labels, self.mask_paths, self.class_names,self.anomaly_types = self._load_all_data()
         else:
-            self.image_paths, self.labels, self.mask_paths, self.class_names = self._load_all_data(self.class_name)
+            self.image_paths, self.labels, self.mask_paths, self.class_names,self.anomaly_types = self._load_all_data(self.class_name)
             
         if normalize == "imagebind":
             self.transform = T.Compose(  # for imagebind
@@ -109,10 +109,10 @@ class MVTECANO(Dataset):
                         12: 'transistor', 13: 'wood', 14: 'zipper'}
     
     def __getitem__(self, idx):
-        image_path, label, mask_path, class_name = self.image_paths[idx], self.labels[idx], self.mask_paths[idx], self.class_names[idx]
+        image_path, label, mask_path, class_name,anomaly_type = self.image_paths[idx], self.labels[idx], self.mask_paths[idx], self.class_names[idx],self.anomaly_type[idx]
         img, label, mask = self._load_image_and_mask(image_path, label, mask_path)
         
-        return img, label, mask, class_name
+        return img, label, mask, class_name,anomaly_type
     
     def _load_image_and_mask(self, image_path, label, mask_path):
         img = Image.open(image_path).convert('RGB')
@@ -136,7 +136,7 @@ class MVTECANO(Dataset):
         return len(self.image_paths)
 
     def _load_data(self, class_name):
-        image_paths, labels, mask_paths = [], [], []
+        image_paths, labels, mask_paths,anomaly_types = [], [], [], []
         
         for phase in ['train', 'test']:
             image_dir = os.path.join(self.root, class_name, phase)
@@ -157,6 +157,7 @@ class MVTECANO(Dataset):
                 if img_type == 'good':
                     labels.extend([0] * len(img_fpath_list))
                     mask_paths.extend([None] * len(img_fpath_list))
+                    anomaly_types.extend(['good'] * len(img_fpath_list)) # 'good'を追加
                 else:
                     labels.extend([1] * len(img_fpath_list))
                     gt_type_dir = os.path.join(mask_dir, img_type)
@@ -164,15 +165,17 @@ class MVTECANO(Dataset):
                     gt_fpath_list = [os.path.join(gt_type_dir, img_fname + '_mask.png')
                                     for img_fname in img_fname_list]
                     mask_paths.extend(gt_fpath_list)
+                    anomaly_types.extend([img_type] * len(img_fpath_list)) # 異常タイプ名を追加
                     
-        class_names = [class_name] * len(image_paths)
-        return image_paths, labels, mask_paths, class_names
+        class_names_list = [class_name] * len(image_paths) # 変数名が衝突しないように変更
+        return image_paths, labels, mask_paths, class_names_list, anomaly_types # anomaly_types も返す
     
     def _load_all_data(self, class_names=None):
         all_image_paths = []
         all_labels = []
         all_mask_paths = []
         all_class_names = []
+        all_anomaly_types = [] # anomaly_types を追加
         CLASS_NAMES = class_names if class_names is not None else self.CLASS_NAMES
         for class_name in CLASS_NAMES:
             image_paths, labels, mask_paths, class_names = self._load_data(class_name)
@@ -180,6 +183,7 @@ class MVTECANO(Dataset):
             all_labels.extend(labels)
             all_mask_paths.extend(mask_paths)
             all_class_names.extend(class_names)
+            all_anomaly_types.extend(anomaly_types) # anomaly_types を追加
         return all_image_paths, all_labels, all_mask_paths, all_class_names
 
 
@@ -201,11 +205,11 @@ class MVTEC(Dataset):
         self.cropsize = [kwargs.get('msk_crp_size'), kwargs.get('msk_crp_size')]
         
         if isinstance(self.class_name, str):
-            self.image_paths, self.labels, self.mask_paths, self.class_names = self._load_data(self.class_name)
+            self.image_paths, self.labels, self.mask_paths, self.class_names,self.anomaly_types = self._load_data(self.class_name)
         elif self.class_name is None:
-            self.image_paths, self.labels, self.mask_paths, self.class_names = self._load_all_data()
+            self.image_paths, self.labels, self.mask_paths, self.class_names,self.anomaly_types = self._load_all_data()
         else:
-            self.image_paths, self.labels, self.mask_paths, self.class_names = self._load_all_data(self.class_name)
+            self.image_paths, self.labels, self.mask_paths, self.class_names,self.anomaly_types = self._load_all_data(self.class_name)
         
         # set transforms
         if normalize == "imagebind":
@@ -239,10 +243,10 @@ class MVTEC(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        image_path, label, mask_path, class_name = self.image_paths[idx], self.labels[idx], self.mask_paths[idx], self.class_names[idx]
+        image_path, label, mask_path, class_name,anomaly_type = self.image_paths[idx], self.labels[idx], self.mask_paths[idx], self.class_names[idx], self.anomaly_types[idx] # anomaly_type を追加
         img, label, mask = self._load_image_and_mask(image_path, label, mask_path)
         
-        return img, label, mask, class_name
+        return img, label, mask, class_name,anomaly_type # anomaly_type を返す
     
     def _load_image_and_mask(self, image_path, label, mask_path):
         img = Image.open(image_path).convert('RGB')
@@ -263,7 +267,7 @@ class MVTEC(Dataset):
         return img, label, mask
 
     def _load_data(self, class_name):
-        image_paths, labels, mask_paths = [], [], []
+        image_paths, labels, mask_paths,anomaly_types = [], [], [], []
         phase = 'train' if self.train else 'test'
         
         image_dir = os.path.join(self.root, class_name, phase)
@@ -284,6 +288,7 @@ class MVTEC(Dataset):
             if img_type == 'good':
                 labels.extend([0] * len(img_fpath_list))
                 mask_paths.extend([None] * len(img_fpath_list))
+                anomaly_types.extend(['good'] * len(img_fpath_list)) # 'good'を追加
             else:
                 labels.extend([1] * len(img_fpath_list))
                 gt_type_dir = os.path.join(mask_dir, img_type)
@@ -291,15 +296,17 @@ class MVTEC(Dataset):
                 gt_fpath_list = [os.path.join(gt_type_dir, img_fname + '_mask.png')
                                 for img_fname in img_fname_list]
                 mask_paths.extend(gt_fpath_list)
+                anomaly_types.extend([img_type] * len(img_fpath_list)) # 異常タイプ名を追加
                     
-        class_names = [class_name] * len(image_paths)
-        return image_paths, labels, mask_paths, class_names
+        class_names_list = [class_name] * len(image_paths) # 変数名が衝突しないように変更
+        return image_paths, labels, mask_paths, class_names, anomaly_types # anomaly_types も返す
     
     def _load_all_data(self, class_names=None):
         all_image_paths = []
         all_labels = []
         all_mask_paths = []
         all_class_names = []
+        all_anomaly_types = [] # anomaly_types を追加
         CLASS_NAMES = class_names if class_names is not None else self.CLASS_NAMES
         for class_name in CLASS_NAMES:
             image_paths, labels, mask_paths, class_names = self._load_data(class_name)
@@ -307,7 +314,8 @@ class MVTEC(Dataset):
             all_labels.extend(labels)
             all_mask_paths.extend(mask_paths)
             all_class_names.extend(class_names)
-        return all_image_paths, all_labels, all_mask_paths, all_class_names
+            all_anomaly_types.extend(anomaly_types) # anomaly_types を追加
+        return all_image_paths, all_labels, all_mask_paths, all_class_names, all_anomaly_types # anomaly_types も返す
 
 
 def get_normal_image_paths_mvtec(root, class_name):
