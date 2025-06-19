@@ -182,48 +182,48 @@ def main(args):
             # 各クラスの評価結果とデータを一時的に保持する辞書
             current_epoch_class_data_for_saving = {}
                     
-            for class_name in CLASSES['unseen']:
-                if class_name in MVTEC.CLASS_NAMES:
-                    test_dataset = MVTEC(args.test_dataset_dir, class_name=class_name, train=False,
+            for class_name_eval in CLASSES['unseen']:
+                if class_name_eval in MVTEC.CLASS_NAMES:
+                    test_dataset = MVTEC(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                          normalize='w50',
                                          img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
-                elif class_name in VISA.CLASS_NAMES:
-                    test_dataset = VISA(args.test_dataset_dir, class_name=class_name, train=False,
+                elif class_name_eval in VISA.CLASS_NAMES:
+                    test_dataset = VISA(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                         normalize='w50',
                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
-                elif class_name in BTAD.CLASS_NAMES:
-                    test_dataset = BTAD(args.test_dataset_dir, class_name=class_name, train=False,
+                elif class_name_eval in BTAD.CLASS_NAMES:
+                    test_dataset = BTAD(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                         normalize='w50',
                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
-                elif class_name in MVTEC3D.CLASS_NAMES:
-                    test_dataset = MVTEC3D(args.test_dataset_dir, class_name=class_name, train=False,
+                elif class_name_eval in MVTEC3D.CLASS_NAMES:
+                    test_dataset = MVTEC3D(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                            normalize='w50',
                                            img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
-                elif class_name in MPDD.CLASS_NAMES:
-                    test_dataset = MPDD(args.test_dataset_dir, class_name=class_name, train=False,
+                elif class_name_eval in MPDD.CLASS_NAMES:
+                    test_dataset = MPDD(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                         normalize='w50',
                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
-                elif class_name in MVTECLOCO.CLASS_NAMES:
-                    test_dataset = MVTECLOCO(args.test_dataset_dir, class_name=class_name, train=False,
+                elif class_name_eval in MVTECLOCO.CLASS_NAMES:
+                    test_dataset = MVTECLOCO(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                         normalize='w50',
                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
-                elif class_name in BRATS.CLASS_NAMES:
-                    test_dataset = BRATS(args.test_dataset_dir, class_name=class_name, train=False,
+                elif class_name_eval in BRATS.CLASS_NAMES:
+                    test_dataset = BRATS(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                            normalize='w50',
                                            img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
                 else:
-                    raise ValueError('Unrecognized class name: {}'.format(class_name))
+                    raise ValueError('Unrecognized class name: {}'.format(class_name_eval))
                 test_loader = DataLoader(
                     test_dataset, batch_size=1, shuffle=False, num_workers=8, drop_last=False
                 )
                 #metrics = validate(args, encoder, vq_ops, constraintor, estimators, test_loader, test_ref_features[class_name], args.device, class_name)
-            　　metrics = validate(args, encoder, vq_ops, constraintor, estimators, test_loader, 
+                metrics = validate(args, encoder, vq_ops, constraintor, estimators, test_loader, 
                                    test_ref_features[class_name_eval], args.device, class_name_eval)
                 
                 img_auc, img_ap, img_f1_score, pix_auc, pix_ap, pix_f1_score, pix_aupro = metrics['scores']
                 
                 print("Epoch: {}, Class Name: {}, Image AUC | AP | F1_Score: {} | {} | {}, Pixel AUC | AP | F1_Score | AUPRO: {} | {} | {} | {}".format(
-                    epoch, class_name, img_auc, img_ap, img_f1_score, pix_auc, pix_ap, pix_f1_score, pix_aupro))
+                    epoch, class_name_eval, img_auc, img_ap, img_f1_score, pix_auc, pix_ap, pix_f1_score, pix_aupro))
                 s1_res.append(metrics['scores1'])
                 s2_res.append(metrics['scores2'])
                 s_res.append(metrics['scores'])
