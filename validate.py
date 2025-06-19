@@ -63,14 +63,15 @@ def validate(args, encoder, vq_ops, constraintor, estimators, test_loader, ref_f
              # --- UMAP可視化のために特徴量と異常タイプ名を収集 ---
             # ここで、UMAPに渡す特徴量を決定します。
             # 通常、最も深い層（最後の要素）の特徴量をフラットにして使います。
+            fdm_features = vq_ops(rfeatures, train=False)
+            rfeatures = applying_EFDM(rfeatures, fdm_features, alpha=args.fdm_alpha)
+            rfeatures = constraintor(*rfeatures) 
+            
             current_features_flat = rfeatures[-1].cpu().numpy().reshape(image.shape[0], -1)
             all_features_to_return.append(current_features_flat)
             all_anomaly_types_to_return.extend(anomaly_type_batch) # リストのままextend
             all_gts_to_return.extend(label.cpu().numpy()) # labelは0/1のGTラベル
 
-            fdm_features = vq_ops(rfeatures, train=False)
-            rfeatures = applying_EFDM(rfeatures, fdm_features, alpha=args.fdm_alpha)
-            rfeatures = constraintor(*rfeatures) 
             
             for l in range(args.feature_levels):
                 e = rfeatures[l]  # BxCxHxW
