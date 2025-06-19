@@ -266,7 +266,10 @@ def main(args):
                     gts_labels_filename = os.path.join(class_specific_save_dir, f'epoch{epoch}_gts_labels.npy')
 
                     np.save(features_filename, data['features'])
-                    np.save(anomaly_types_filename, data['anomaly_types'])
+                    # anomaly_types をテキストファイルとして保存
+                    with open(anomaly_types_filename, 'w') as f:
+                        for item in data['anomaly_types']:
+                            f.write(str(item) + '\n') # 各要素を1行ずつ書き込む
                     np.save(gts_labels_filename, data['gts_labels'])
                     print(f"  - クラス '{class_name_to_save}': Epoch {epoch} のデータを {class_specific_save_dir} に保存しました。")
                 
