@@ -231,7 +231,7 @@ def main(args):
             print('(Merged) Average Image AUC | AP | F1_Score: {:.3f} | {:.3f} | {:.3f}, Average Pixel AUC | AP | F1_Score | AUPRO: {:.3f} | {:.3f} | {:.3f} | {:.3f}'.format(
                 img_auc, img_ap, img_f1_score, pix_auc, pix_ap, pix_f1_score, pix_aupro))
             
-            if img_auc > best_img_auc #pix_aupro > best_pro:
+            if img_auc > best_img_auc: #pix_aupro > best_pro:
                 os.makedirs(args.checkpoint_path, exist_ok=True)
                 best_img_auc = img_auc #best_pro = pix_aupro
                 state_dict = {'vq_ops': vq_ops.state_dict(),
