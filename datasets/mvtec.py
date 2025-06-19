@@ -137,6 +137,8 @@ class MVTECANO(Dataset):
 
     def _load_data(self, class_name):
         image_paths, labels, mask_paths,anomaly_types = [], [], [], []
+        class_names_list = []  # Initialize class_names_list here
+
         
         for phase in ['train', 'test']:
             image_dir = os.path.join(self.root, class_name, phase)
@@ -178,12 +180,12 @@ class MVTECANO(Dataset):
         all_anomaly_types = [] # anomaly_types を追加
         CLASS_NAMES = class_names if class_names is not None else self.CLASS_NAMES
         for class_name in CLASS_NAMES:
-            image_paths, labels, mask_paths, class_names = self._load_data(class_name)
+            image_paths, labels, mask_paths, class_names,anomaly_types_from_load_data = self._load_data(class_name)
             all_image_paths.extend(image_paths)
             all_labels.extend(labels)
             all_mask_paths.extend(mask_paths)
             all_class_names.extend(class_names)
-            all_anomaly_types.extend(anomaly_types) # anomaly_types を追加
+            all_anomaly_types.extend(anomaly_types_from_load_data) # anomaly_types を追加
         return all_image_paths, all_labels, all_mask_paths, all_class_names
 
 
@@ -268,6 +270,8 @@ class MVTEC(Dataset):
 
     def _load_data(self, class_name):
         image_paths, labels, mask_paths,anomaly_types = [], [], [], []
+        class_names_list = []  # Initialize class_names_list here
+
         phase = 'train' if self.train else 'test'
         
         image_dir = os.path.join(self.root, class_name, phase)
@@ -299,7 +303,7 @@ class MVTEC(Dataset):
                 anomaly_types.extend([img_type] * len(img_fpath_list)) # 異常タイプ名を追加
                     
         class_names_list = [class_name] * len(image_paths) # 変数名が衝突しないように変更
-        return image_paths, labels, mask_paths, class_names, anomaly_types # anomaly_types も返す
+        return image_paths, labels, mask_paths, class_names_list, anomaly_types # anomaly_types も返す
     
     def _load_all_data(self, class_names=None):
         all_image_paths = []
@@ -309,12 +313,12 @@ class MVTEC(Dataset):
         all_anomaly_types = [] # anomaly_types を追加
         CLASS_NAMES = class_names if class_names is not None else self.CLASS_NAMES
         for class_name in CLASS_NAMES:
-            image_paths, labels, mask_paths, class_names = self._load_data(class_name)
+            image_paths, labels, mask_paths, class_names, anomaly_types_from_load_data = self._load_data(class_name)
             all_image_paths.extend(image_paths)
             all_labels.extend(labels)
             all_mask_paths.extend(mask_paths)
             all_class_names.extend(class_names)
-            all_anomaly_types.extend(anomaly_types) # anomaly_types を追加
+            all_anomaly_types.extend(anomaly_types_from_load_data) # anomaly_types を追加
         return all_image_paths, all_labels, all_mask_paths, all_class_names, all_anomaly_types # anomaly_types も返す
 
 
