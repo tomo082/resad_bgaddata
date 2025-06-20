@@ -109,7 +109,7 @@ class MVTECANO(Dataset):
                         12: 'transistor', 13: 'wood', 14: 'zipper'}
     
     def __getitem__(self, idx):
-        image_path, label, mask_path, class_name,anomaly_type = self.image_paths[idx], self.labels[idx], self.mask_paths[idx], self.class_names[idx],self.anomaly_type[idx]
+        image_path, label, mask_path, class_name,anomaly_type = self.image_paths[idx], self.labels[idx], self.mask_paths[idx], self.class_names[idx],self.anomaly_types[idx]
         img, label, mask = self._load_image_and_mask(image_path, label, mask_path)
         
         return img, label, mask, class_name,anomaly_type
