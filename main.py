@@ -26,7 +26,8 @@ from utils import BoundaryAverager
 from losses.loss import calculate_log_barrier_bi_occ_loss
 from classes import VISA_TO_MVTEC, MVTEC_TO_VISA, MVTEC_TO_BTAD, MVTEC_TO_MVTEC3D
 from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC
-
+# visualizerのインポート
+from visualizer import Visualizer, denormalization 
 warnings.filterwarnings('ignore')
 
 TOTAL_SHOT = 4  # total few-shot reference samples
@@ -97,7 +98,12 @@ def main(args):
     #best_pro = 0　#-1になってしまうので変更
     best_img_auc = 0
     N_batch = 8192
-            
+
+    # 可視化オブジェクトの初期化
+    # 可視化結果を保存するディレクトリを指定
+    visualization_output_dir = os.path.join(args.checkpoint_path, 'visualizations')
+    os.makedirs(visualization_output_dir, exist_ok=True)
+    my_visualizer = Visualizer(root=visualization_output_dir) #           
     # 最良モデルのエポックで保存するためのデータ保持用
     best_epoch_class_data = {}   
             
@@ -216,10 +222,10 @@ def main(args):
                 test_loader = DataLoader(
                     test_dataset, batch_size=1, shuffle=False, num_workers=8, drop_last=False
                 )
-                #metrics = validate(args, encoder, vq_ops, constraintor, estimators, test_loader, test_ref_features[class_name], args.device, class_name)
                 metrics = validate(args, encoder, vq_ops, constraintor, estimators, test_loader, 
                                    test_ref_features[class_name_eval], args.device, class_name_eval)
-                
+                #metrics = validate(args, encoder, vq_ops, constraintor, estimators, test_loader, test_ref_features[class_name], args.device, class_name)
+
                 img_auc, img_ap, img_f1_score, pix_auc, pix_ap, pix_f1_score, pix_aupro = metrics['scores']
                 
                 print("Epoch: {}, Class Name: {}, Image AUC | AP | F1_Score: {} | {} | {}, Pixel AUC | AP | F1_Score | AUPRO: {} | {} | {} | {}".format(
@@ -227,6 +233,24 @@ def main(args):
                 s1_res.append(metrics['scores1'])
                 s2_res.append(metrics['scores2'])
                 s_res.append(metrics['scores'])
+                # ここで可視化処理を追加
+                # `validate` 関数が返す `metrics` から必要なデータを取得
+                scores = metrics['scores_map'] # validate.pyでscores_mapとして返すように修正が必要
+                gts_masks = metrics['gt_masks_raw'] # validate.pyでgt_masks_rawとして返すように修正が必要
+                images_raw = metrics['images_raw'] # validate.pyでimages_rawとして返すように修正が必要
+                 # Visualizerを使ってプロット
+                # クラスごとにサブディレクトリを作成
+                output_class_dir = os.path.join(visualization_output_dir, class_name_eval, f'epoch_{epoch}')
+                os.makedirs(output_class_dir, exist_ok=True)
+                my_visualizer.set_prefix(f'{class_name_eval}_epoch{epoch}') # プレフィックスをクラス名とエポックに設定
+                my_visualizer.root = output_class_dir # 保存先ディレクトリを更新
+               # ここで images_raw はまだ正規化されている可能性があるので、denormalizationを適用
+                # validate.py の中で生画像を保存するか、ここでロードし直す方が良いかもしれません
+                # 今回はvalidate.pyがテスト画像をそのまま返すように仮定
+                # scores は NumPy 配列、gt_masks も NumPy 配列であることを確認
+                my_visualizer.plot(images_raw, scores, gts_masks) #
+                print(f"  - クラス '{class_name_eval}': 可視化結果を {output_class_dir} に保存しました。")                           
+
                 # 各クラスの評価結果から特徴量とラベルデータを一時的に保存
                 current_epoch_class_data_for_saving[class_name_eval] = {
                     'features': metrics['features'],
