@@ -98,7 +98,7 @@ class MVTECFEWANO(Dataset):
             T.ToTensor()])
             
         self.class_to_idx = {'capsule': 0,'screw': 1, 'toothbrush': 2}
-        self.idx_to_class = { 0: 'capsule', 1: 'screw', 2: 'transistor', }
+        self.idx_to_class = { 0: 'capsule', 1: 'screw', 2: 'transistor'}
     
     def __getitem__(self, idx):
         image_path, label, mask_path, class_name,anomaly_type = self.image_paths[idx], self.labels[idx], self.mask_paths[idx], self.class_names[idx],self.anomaly_types[idx]
