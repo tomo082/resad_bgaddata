@@ -17,6 +17,7 @@ from datasets.mvtec_3d import MVTEC3D
 from datasets.mpdd import MPDD
 from datasets.mvtec_loco import MVTECLOCO
 from datasets.brats import BRATS
+from datasets.mvtec_fewclass import MVTECFEWANO, MVTECFEW
 
 from models.fc_flow import load_flow_model
 from models.modules import MultiScaleConv
@@ -25,7 +26,7 @@ from utils import init_seeds, get_residual_features, get_mc_matched_ref_features
 from utils import BoundaryAverager
 from losses.loss import calculate_log_barrier_bi_occ_loss
 from classes import VISA_TO_MVTEC, MVTEC_TO_VISA, MVTEC_TO_BTAD, MVTEC_TO_MVTEC3D
-from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC
+from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC, MVTECFEW_TO_MVTEC
 # visualizerのインポート
 from visualizer import Visualizer, denormalization 
 warnings.filterwarnings('ignore')
@@ -35,7 +36,7 @@ FIRST_STAGE_EPOCH = 10
 SETTINGS = {'visa_to_mvtec': VISA_TO_MVTEC, 'mvtec_to_visa': MVTEC_TO_VISA,
             'mvtec_to_btad': MVTEC_TO_BTAD, 'mvtec_to_mvtec3d': MVTEC_TO_MVTEC3D,
             'mvtec_to_mpdd': MVTEC_TO_MPDD, 'mvtec_to_mvtecloco': MVTEC_TO_MVTECLOCO,
-            'mvtec_to_brats': MVTEC_TO_BRATS,'mvtec_to_mvtec': MVTEC_TO_MVTEC}
+            'mvtec_to_brats': MVTEC_TO_BRATS,'mvtec_to_mvtec': MVTEC_TO_MVTEC, 'mvtecfew_to_mvtec': MVTECFEW_TO_MVTEC}
 
 
 def main(args):
@@ -43,8 +44,21 @@ def main(args):
         CLASSES = SETTINGS[args.setting]
     else:
         raise ValueError(f"Dataset setting must be in {SETTINGS.keys()}, but got {args.setting}.")
-    
-    if CLASSES['seen'][0] in MVTEC.CLASS_NAMES:  # from mvtec to other datasets
+    #
+    if args.train_dataset == 'mvtec_few':
+        train_dataset1 = MVTECFEW(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize="w50",
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader1 = DataLoader(
+            train_dataset1, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )
+        train_dataset2 = MVTECFEWANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize='w50',
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader2 = DataLoader(
+            train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )
+    elif CLASSES['seen'][0] in MVTEC.CLASS_NAMES:  # from mvtec to other datasets
         train_dataset1 = MVTEC(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
                                normalize="w50",
                                img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
@@ -335,6 +349,7 @@ def load_mc_reference_features(root_dir: str, class_names, device: torch.device,
                     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--train_dataset', type=str, default='mvtec')
     parser.add_argument('--setting', type=str, default="visa_to_mvtec")
     parser.add_argument('--train_dataset_dir', type=str, default="")
     parser.add_argument('--test_dataset_dir', type=str, default="")
