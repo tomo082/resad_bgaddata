@@ -49,3 +49,7 @@ MVTECFEW_TO_MVTEC = {'seen': ['capsule','screw','transistor'],
                   'unseen': ['bottle', 'cable', 'capsule', 'carpet', 'grid',
                              'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
                              'tile', 'toothbrush', 'transistor', 'wood', 'zipper']}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9c226d131d5d7e1cdd03ff5fa0b21bfe1ac0530b
