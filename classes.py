@@ -44,3 +44,7 @@ MVTEC_TO_MVTEC = {'seen': ['bottle', 'cable', 'capsule', 'carpet', 'grid',
                   'unseen': ['bottle', 'cable', 'capsule', 'carpet', 'grid',
                              'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
                              'tile', 'toothbrush', 'transistor', 'wood', 'zipper']}
+MVTECFEW_TO_MVTEC = {'seen': ['capsule','screw','transistor'],
+                  'unseen': ['bottle', 'cable', 'capsule', 'carpet', 'grid',
+                             'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
+                             'tile', 'toothbrush', 'transistor', 'wood', 'zipper']}
