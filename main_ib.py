@@ -28,7 +28,9 @@ from utils import init_seeds, get_residual_features, get_mc_matched_ref_features
 from utils import BoundaryAverager
 from losses.loss import calculate_log_barrier_bi_occ_loss, calculate_orthogonal_regularizer
 from classes import VISA_TO_MVTEC, MVTEC_TO_VISA, MVTEC_TO_BTAD, MVTEC_TO_MVTEC3D
-from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC
+from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC,MVTECFEW_TO_MVTEC
+# visualizerのインポート
+from visualizer import Visualizer, denormalization 
 
 warnings.filterwarnings('ignore')
 
@@ -37,7 +39,7 @@ FIRST_STAGE_EPOCH = 1
 SETTINGS = {'visa_to_mvtec': VISA_TO_MVTEC, 'mvtec_to_visa': MVTEC_TO_VISA,
             'mvtec_to_btad': MVTEC_TO_BTAD, 'mvtec_to_mvtec3d': MVTEC_TO_MVTEC3D,
             'mvtec_to_mpdd': MVTEC_TO_MPDD, 'mvtec_to_mvtecloco': MVTEC_TO_MVTECLOCO,
-            'mvtec_to_brats': MVTEC_TO_BRATS, 'mvtec_to_mvtec': MVTEC_TO_MVTEC}
+            'mvtec_to_brats': MVTEC_TO_BRATS, 'mvtec_to_mvtec': MVTEC_TO_MVTEC,'mvtecfew_to_mvtec': MVTECFEW_TO_MVTEC}
 
 
 def main(args):
@@ -45,28 +47,41 @@ def main(args):
         CLASSES = SETTINGS[args.setting]
     else:
         raise ValueError(f"Dataset setting must be in {SETTINGS.keys()}, but got {args.setting}.")
-    if CLASSES['seen'][0] in MVTEC.CLASS_NAMES:  # from mvtec to other datasets
+    if args.train_dataset == 'mvtec_few':
+        train_dataset1 = MVTECFEW(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize="w50",
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader1 = DataLoader(
+            train_dataset1, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )
+        train_dataset2 = MVTECFEWANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize='w50',
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader2 = DataLoader(
+            train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )
+    elif CLASSES['seen'][0] in MVTEC.CLASS_NAMES:  # from mvtec to other datasets
         train_dataset1 = MVTEC(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
-                           normalize="imagebind",
-                           img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+                               normalize="w50",
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
         train_loader1 = DataLoader(
             train_dataset1, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
         )
         train_dataset2 = MVTECANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
-                                normalize='imagebind',
-                                img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+                                  normalize='w50',
+                                  img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
         train_loader2 = DataLoader(
             train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
         )
     else:  # from visa to mvtec
         train_dataset1 = VISA(args.train_dataset_dir, class_name=CLASSES['seen'], train=True,
-                               normalize="imagebind",
+                               normalize="w50",
                                img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
         train_loader1 = DataLoader(
             train_dataset1, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
         )
         train_dataset2 = VISAANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
-                                 normalize="imagebind",
+                                 normalize="w50",
                                  img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
         train_loader2 = DataLoader(
             train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
@@ -97,6 +112,15 @@ def main(args):
     
     best_pro = 0
     N_batch = 16 * 16 * 32
+    # 可視化オブジェクトの初期化
+    # 可視化結果を保存するディレクトリを指定
+    visualization_output_dir = os.path.join(args.checkpoint_path, 'visualizations')
+    os.makedirs(visualization_output_dir, exist_ok=True)
+    my_visualizer = Visualizer(root=visualization_output_dir) #           
+    # 最良モデルのエポックで保存するためのデータ保持用
+    best_epoch_class_data = {}   
+            
+            
     for epoch in range(args.epochs):
         vq_ops.train()
         constraintor.train()
@@ -236,7 +260,30 @@ def main(args):
                 s1_res.append(metrics['scores1'])
                 s2_res.append(metrics['scores2'])
                 s_res.append(metrics['scores'])
-            
+                # 可視化結果を保存するのは最終エポックのみ
+                if epoch == args.epochs - 1: # 最終エポックの場合のみ可視化を保存
+                    # `validate` 関数が返す `metrics` から必要なデータを取得
+                    scores = metrics['scores_map']
+                    gts_masks = metrics['gt_masks_raw']
+                    images_raw = metrics['images_raw']
+
+                    # Visualizerを使ってプロット
+                    # クラスごとにサブディレクトリを作成
+                    output_class_dir = os.path.join(visualization_output_dir, class_name_eval, f'final_epoch') # ディレクトリ名を'final_epoch'に固定
+                    os.makedirs(output_class_dir, exist_ok=True)
+                    my_visualizer.set_prefix(f'{class_name_eval}_final_epoch') # プレフィックスをクラス名と最終エポックに設定
+                    my_visualizer.root = output_class_dir # 保存先ディレクトリを更新
+
+                    my_visualizer.plot(images_raw, scores, gts_masks)
+                    print(f"  - クラス '{class_name_eval}': 最終エポックの可視化結果を {output_class_dir} に保存しました。")
+                # --- 変更点ここまで ---            
+
+                # 各クラスの評価結果から特徴量とラベルデータを一時的に保存
+                current_epoch_class_data_for_saving[class_name_eval] = {
+                    'features': metrics['features'],
+                    'anomaly_types': metrics['anomaly_types'],
+                    'gts_labels': metrics['gts_labels']
+                    }             
             s1_res = np.array(s1_res)
             s2_res = np.array(s2_res)
             s_res = np.array(s_res)
@@ -250,13 +297,43 @@ def main(args):
             print('(Merged) Average Image AUC | AP | F1_Score: {:.3f} | {:.3f} | {:.3f}, Average Pixel AUC | AP | F1_Score | AUPRO: {:.3f} | {:.3f} | {:.3f} | {:.3f}'.format(
                 img_auc, img_ap, img_f1_score, pix_auc, pix_ap, pix_f1_score, pix_aupro))
             
-            if pix_aupro > best_pro:
+            if img_auc > best_img_auc: #pix_aupro > best_pro:
                 os.makedirs(args.checkpoint_path, exist_ok=True)
-                best_pro = pix_aupro
+                best_img_auc = img_auc #best_pro = pix_aupro
                 state_dict = {'vq_ops': vq_ops.state_dict(),
                               'constraintor': constraintor.state_dict(),
                               'estimators': [estimator.state_dict() for estimator in estimators]}
                 torch.save(state_dict, os.path.join(args.checkpoint_path, f'{args.setting}_checkpoints.pth'))
+                # 新しい特徴量保存ディレクトリを作成
+                features_save_dir = os.path.join(args.checkpoint_path, 'features_for_analysis')
+                os.makedirs(features_save_dir, exist_ok=True) 
+                # -- ここから変更 --
+                # 各クラスについて、最良スコア時のデータを保存
+                for class_name_to_save, data in current_epoch_class_data_for_saving.items():
+                    # クラス名の下にファイルを保存するパスを構築
+                    class_specific_save_dir = os.path.join(features_save_dir, class_name_to_save)
+                    os.makedirs(class_specific_save_dir, exist_ok=True)
+
+                    # ファイル名から epoch 番号を削除
+                    # これにより、常に同じファイル名で上書き保存され、
+                    # 最終的にベストスコア時のデータだけが残る
+                    features_filename = os.path.join(class_specific_save_dir, 'best_features.npy')
+                    anomaly_types_filename = os.path.join(class_specific_save_dir, 'best_anomaly_types.npy')
+                    gts_labels_filename = os.path.join(class_specific_save_dir, 'best_gts_labels.npy')
+
+                    np.save(features_filename, data['features'])
+                    
+                    # anomaly_types をテキストファイルとして保存
+                    with open(anomaly_types_filename, 'w') as f:
+                        for item in data['anomaly_types']:
+                            f.write(str(item) + '\n') # 各要素を1行ずつ書き込む
+                            
+                    np.save(gts_labels_filename, data['gts_labels'])
+                    print(f"  - クラス '{class_name_to_save}': 最良スコア時のデータを {class_specific_save_dir} に上書き保存しました。")
+                # -- 変更ここまで --
+                
+                # 最良エポックのデータなので、今後の可視化のためにこれを覚えておく
+                best_epoch_class_data = current_epoch_class_data_for_saving.copy()
 
 
 def load_mc_reference_features(root_dir: str, class_names, device: torch.device, num_shot=4):
