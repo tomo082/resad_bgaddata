@@ -228,6 +228,9 @@ def main(args):
         if (epoch + 1) % args.eval_freq == 0:
             s1_res, s2_res, s_res = [], [], []
             test_proto_features = load_mc_reference_features(args.test_ref_feature_dir, CLASSES['unseen'], args.device, args.num_ref_shot)
+            # 各クラスの評価結果とデータを一時的に保持する辞書
+            current_epoch_class_data_for_saving = {}
+                    
             for class_name in CLASSES['unseen']:
                 if class_name in MVTEC.CLASS_NAMES:
                     test_dataset = MVTEC(args.test_dataset_dir, class_name=class_name, train=False,
