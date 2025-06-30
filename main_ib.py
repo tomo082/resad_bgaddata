@@ -111,6 +111,7 @@ def main(args):
     scheduler1 = torch.optim.lr_scheduler.MultiStepLR(optimizer1, milestones=[70, 90], gamma=0.1)
     
     best_pro = 0
+    best_img_auc = 0
     N_batch = 16 * 16 * 32
     # 可視化オブジェクトの初期化
     # 可視化結果を保存するディレクトリを指定
