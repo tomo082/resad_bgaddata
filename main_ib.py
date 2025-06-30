@@ -221,9 +221,9 @@ def main(args):
         print(f"Epoch[{epoch}/{args.epochs}]: VQ loss: {vq_loss_avg}, OCC loss: {occ_loss_avg} (n: {occn_loss_avg}, a: {occa_loss_avg}), " \
               f"Ort loss: {ort_loss_avg}, " \
               f"Flow loss: {flow_loss_avg}")
-        print(f"Epoch[{epoch}/{args.epochs}]: VQ loss: {train_loss_total_vq / total_num_vq}, OCC loss: {train_loss_total_occ / total_num_occ} (n: {train_loss_total_occn / total_num_occn}, a: {train_loss_total_occa / total_num_occa}), " \
-              f"Ort loss: {train_loss_total_ort / total_num_ort}, " \
-              f"Flow loss: {train_loss_total_flow / total_num_flow}")
+        #print(f"Epoch[{epoch}/{args.epochs}]: VQ loss: {train_loss_total_vq / total_num_vq}, OCC loss: {train_loss_total_occ / total_num_occ} (n: {train_loss_total_occn / total_num_occn}, a: {train_loss_total_occa / total_num_occa}), " \
+              #f"Ort loss: {train_loss_total_ort / total_num_ort}, " \
+              #f"Flow loss: {train_loss_total_flow / total_num_flow}")
         
         if (epoch + 1) % args.eval_freq == 0:
             s1_res, s2_res, s_res = [], [], []
