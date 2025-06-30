@@ -399,6 +399,7 @@ def load_and_transform_vision_data(image_paths, device):
                     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--train_dataset', type=str, default='mvtec')        
     parser.add_argument('--setting', type=str, default="visa_to_mvtec")
     parser.add_argument('--train_dataset_dir', type=str, default="")
     parser.add_argument('--test_dataset_dir', type=str, default="")
