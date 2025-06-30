@@ -211,6 +211,16 @@ def main(args):
         scheduler1.step()
                
         progress_bar.close()
+        vq_loss_avg = train_loss_total_vq / total_num_vq if total_num_vq > 0 else 0
+        occ_loss_avg = train_loss_total_occ / total_num_occ if total_num_occ > 0 else 0
+        occn_loss_avg = train_loss_total_occn / total_num_occn if total_num_occn > 0 else 0
+        occa_loss_avg = train_loss_total_occa / total_num_occa if total_num_occa > 0 else 0
+        ort_loss_avg = train_loss_total_ort / total_num_ort if total_num_ort > 0 else 0
+        flow_loss_avg = train_loss_total_flow / total_num_flow if total_num_flow > 0 else 0
+
+        print(f"Epoch[{epoch}/{args.epochs}]: VQ loss: {vq_loss_avg}, OCC loss: {occ_loss_avg} (n: {occn_loss_avg}, a: {occa_loss_avg}), " \
+              f"Ort loss: {ort_loss_avg}, " \
+              f"Flow loss: {flow_loss_avg}")
         print(f"Epoch[{epoch}/{args.epochs}]: VQ loss: {train_loss_total_vq / total_num_vq}, OCC loss: {train_loss_total_occ / total_num_occ} (n: {train_loss_total_occn / total_num_occn}, a: {train_loss_total_occa / total_num_occa}), " \
               f"Ort loss: {train_loss_total_ort / total_num_ort}, " \
               f"Flow loss: {train_loss_total_flow / total_num_flow}")
