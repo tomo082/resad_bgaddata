@@ -18,6 +18,9 @@ from datasets.mpdd import MPDD
 from datasets.mvtec_loco import MVTECLOCO
 from datasets.brats import BRATS
 from datasets.mvtec_fewclass import MVTECFEWANO, MVTECFEW
+from datasets.mvtec_bottle import MVTECBOTTLEANO, MVTECBOTTLE
+from datasets.mvtec_screw import MVTECSCREWANO, MVTECSCREW
+
 
 from models.fc_flow import load_flow_model
 from models.modules import MultiScaleConv
@@ -58,6 +61,33 @@ def main(args):
         train_loader2 = DataLoader(
             train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
         )
+#7/5 残差を使わない場合に適応
+    elif args.class == 'bottle':
+        train_dataset1 = MVTECBOTTLE(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize="w50",
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader1 = DataLoader(
+            train_dataset1, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )
+        train_dataset2 = MVTECBOTTLEANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize='w50',
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader2 = DataLoader(
+            train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )        
+    elif args.class == 'screw':
+        train_dataset1 = MVTECSCREW(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize="w50",
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader1 = DataLoader(
+            train_dataset1, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )
+        train_dataset2 = MVTECBSCREWANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize='w50',
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader2 = DataLoader(
+            train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )                
     elif CLASSES['seen'][0] in MVTEC.CLASS_NAMES:  # from mvtec to other datasets
         train_dataset1 = MVTEC(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
                                normalize="w50",
@@ -368,6 +398,8 @@ if __name__ == "__main__":
     parser.add_argument('--eval_freq', type=int, default=1)
     parser.add_argument('--backbone', type=str, default="wide_resnet50_2")
     parser.add_argument('--residual', type=str, default=True)
+    parser.add_argument('--class', type=str, default=ALL)
+
     
     # flow parameters
     parser.add_argument('--flow_arch', type=str, default='conditional_flow_model')
