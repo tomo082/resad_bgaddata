@@ -294,7 +294,7 @@ def main(args):
                     my_visualizer.set_prefix(f'{class_name_eval}_final_epoch') # プレフィックスをクラス名と最終エポックに設定
                     my_visualizer.root = output_class_dir # 保存先ディレクトリを更新
 
-                    my_visualizer.plot(images_raw, scores, gts_masks)
+                    my_visualizer.plot(images_raw, scores, gts_masks,args)
                     print(f"  - クラス '{class_name_eval}': 最終エポックの可視化結果を {output_class_dir} に保存しました。")
                 # --- 変更点ここまで ---            
 
