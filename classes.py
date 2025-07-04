@@ -50,7 +50,12 @@ MVTECFEW_TO_MVTEC = {'seen': ['capsule','screw','transistor'],
                              'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
                              'tile', 'toothbrush', 'transistor', 'wood', 'zipper']}
 BOTTLE_TO_BOTTLE = {'seen': ['bottle'],
-                 'unseen': ['bottle']}
+                    'unseen': ['bottle', 'cable', 'capsule', 'carpet', 'grid',
+                             'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
+                             'tile', 'toothbrush', 'transistor', 'wood', 'zipper']}}
 
 SCREW_TO_SCREW = {'seen': ['screw'],
+                  'unseen': ['bottle', 'cable', 'capsule', 'carpet', 'grid',
+                             'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
+                             'tile', 'toothbrush', 'transistor', 'wood', 'zipper']}}
                  'unseen': ['screw']}
