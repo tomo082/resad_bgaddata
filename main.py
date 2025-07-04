@@ -147,7 +147,12 @@ def main(args):
             ref_features = get_mc_reference_features(encoder, args.train_dataset_dir, class_names, images.device, args.train_ref_shot)
             mfeatures = get_mc_matched_ref_features(features, class_names, ref_features)
             rfeatures = get_residual_features(features, mfeatures, pos_flag=True)
-            
+            #残差をつかうかどうか7/5
+            if args.residual=='False':
+                rfeatures = ref_features
+            else:
+                rfeatures = rfeatures
+                        
             lvl_masks = []
             for l in range(args.feature_levels):
                 _, _, h, w = rfeatures[l].size()
@@ -362,6 +367,7 @@ if __name__ == "__main__":
     parser.add_argument('--checkpoint_path', type=str, default="./checkpoints/")
     parser.add_argument('--eval_freq', type=int, default=1)
     parser.add_argument('--backbone', type=str, default="wide_resnet50_2")
+    parser.add_argument('--residual', type=str, default=True)
     
     # flow parameters
     parser.add_argument('--flow_arch', type=str, default='conditional_flow_model')
