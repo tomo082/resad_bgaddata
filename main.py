@@ -149,7 +149,7 @@ def main(args):
             rfeatures = get_residual_features(features, mfeatures, pos_flag=True)
             #残差をつかうかどうか7/5
             if args.residual=='False':
-                rfeatures = ref_features
+                rfeatures = features
             else:
                 rfeatures = rfeatures
                         

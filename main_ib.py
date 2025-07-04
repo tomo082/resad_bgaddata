@@ -156,7 +156,7 @@ def main(args):
             mfeatures = get_mc_matched_ref_features(features, class_names, ref_features)
             rfeatures = get_residual_features(features, mfeatures)
             if args.residual=='False':
-                rfeatures = ref_features
+                rfeatures = features
             else:
                 rfeatures = rfeatures
             

@@ -62,9 +62,9 @@ def validate(args, encoder, vq_ops, constraintor, estimators, test_loader, ref_f
                     features[i] = features[i].permute(0, 2, 1).reshape(b, c, 16, 16)
                 mfeatures = get_matched_ref_features(features, ref_features)
                 rfeatures = get_residual_features(features, mfeatures)
-                
+
             if args.residual=='False':
-                rfeatures = ref_features
+                rfeatures = features
             else:
                 rfeatures = rfeatures
             
