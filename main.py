@@ -62,7 +62,7 @@ def main(args):
             train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
         )
 #7/5 残差を使わない場合に適応
-    elif args.class == 'bottle':
+    elif args.dataset_class == 'bottle':
         train_dataset1 = MVTECBOTTLE(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
                                normalize="w50",
                                img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
@@ -75,7 +75,7 @@ def main(args):
         train_loader2 = DataLoader(
             train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
         )        
-    elif args.class == 'screw':
+    elif args.dataset_class == 'screw':
         train_dataset1 = MVTECSCREW(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
                                normalize="w50",
                                img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
@@ -398,7 +398,7 @@ if __name__ == "__main__":
     parser.add_argument('--eval_freq', type=int, default=1)
     parser.add_argument('--backbone', type=str, default="wide_resnet50_2")
     parser.add_argument('--residual', type=str, default=True)
-    parser.add_argument('--class', type=str, default=ALL)
+    parser.add_argument('--dataset_class', type=str, default=ALL)
 
     
     # flow parameters
