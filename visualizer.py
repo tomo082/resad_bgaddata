@@ -22,7 +22,7 @@ class Visualizer(object):
     def set_prefix(self, prefix):
         self.prefix = prefix
 
-    def plot(self, test_imgs, scores, gt_masks):
+    def plot(self, test_imgs, scores, gt_masks,args):
         """
         Args:
             test_imgs (ndarray): shape (N, 3, h, w)
@@ -30,7 +30,7 @@ class Visualizer(object):
             gt_masks (ndarray): shape (N, 1, h, w)
         """
         #7/5 エラー修正
-        if args.residual:         
+        if args.residual=True:         
           vmax = scores.max() * 255.
           vmin = scores.min() * 255. + 80
           vmax = vmax - 20
