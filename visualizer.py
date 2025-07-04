@@ -30,7 +30,7 @@ class Visualizer(object):
             gt_masks (ndarray): shape (N, 1, h, w)
         """
         #7/5 エラー修正
-        if args.residual=True:         
+        if args.residual==True:         
           vmax = scores.max() * 255.
           vmin = scores.min() * 255. + 80
           vmax = vmax - 20
