@@ -475,7 +475,7 @@ if __name__ == "__main__":
     parser.add_argument('--checkpoint_path', type=str, default="./checkpoints/")
     parser.add_argument('--eval_freq', type=int, default=1)
     parser.add_argument('--backbone', type=str, default="imagebind")
-    parser.add_argument('--residual', type = True, default=True)
+    parser.add_argument('--residual', type = str, default=True)
     parser.add_argument('--dataset_class', type=str, default='all')
             
     # flow parameters
