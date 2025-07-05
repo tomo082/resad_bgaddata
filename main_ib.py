@@ -19,6 +19,9 @@ from datasets.mvtec_3d import MVTEC3D
 from datasets.mpdd import MPDD
 from datasets.mvtec_loco import MVTECLOCO
 from datasets.brats import BRATS
+from datasets.mvtec_fewclass import MVTECFEWANO, MVTECFEW
+from datasets.mvtec_bottle import MVTECBOTTLEANO, MVTECBOTTLE
+from datasets.mvtec_screw import MVTECSCREWANO, MVTECSCREW
 
 from models.fc_flow import load_flow_model
 from models.imagebind import ImageBindModel
@@ -28,7 +31,7 @@ from utils import init_seeds, get_residual_features, get_mc_matched_ref_features
 from utils import BoundaryAverager
 from losses.loss import calculate_log_barrier_bi_occ_loss, calculate_orthogonal_regularizer
 from classes import VISA_TO_MVTEC, MVTEC_TO_VISA, MVTEC_TO_BTAD, MVTEC_TO_MVTEC3D
-from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC,MVTECFEW_TO_MVTEC
+from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC,MVTECFEW_TO_MVTEC,BOTTLE_TO_BOTTLE, SCREW_TO_SCREW
 # visualizerのインポート
 from visualizer import Visualizer, denormalization 
 
@@ -39,7 +42,7 @@ FIRST_STAGE_EPOCH = 1
 SETTINGS = {'visa_to_mvtec': VISA_TO_MVTEC, 'mvtec_to_visa': MVTEC_TO_VISA,
             'mvtec_to_btad': MVTEC_TO_BTAD, 'mvtec_to_mvtec3d': MVTEC_TO_MVTEC3D,
             'mvtec_to_mpdd': MVTEC_TO_MPDD, 'mvtec_to_mvtecloco': MVTEC_TO_MVTECLOCO,
-            'mvtec_to_brats': MVTEC_TO_BRATS, 'mvtec_to_mvtec': MVTEC_TO_MVTEC,'mvtecfew_to_mvtec': MVTECFEW_TO_MVTEC}
+            'mvtec_to_brats': MVTEC_TO_BRATS, 'mvtec_to_mvtec': MVTEC_TO_MVTEC,'mvtecfew_to_mvtec': MVTECFEW_TO_MVTEC,'bottle_to_bottle':BOTTLE_TO_BOTTLE,  'screw_to_screw':SCREW_TO_SCREW}
 
 
 def main(args):
@@ -60,6 +63,32 @@ def main(args):
         train_loader2 = DataLoader(
             train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
         )
+    elif args.dataset_class == 'bottle':
+        train_dataset1 = MVTECBOTTLE(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize="w50",
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader1 = DataLoader(
+            train_dataset1, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )
+        train_dataset2 = MVTECBOTTLEANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize='w50',
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader2 = DataLoader(
+            train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )        
+    elif args.dataset_class == 'screw':
+        train_dataset1 = MVTECSCREW(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize="w50",
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader1 = DataLoader(
+            train_dataset1, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )
+        train_dataset2 = MVTECSCREWANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+                               normalize='w50',
+                               img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+        train_loader2 = DataLoader(
+            train_dataset2, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
+        )                
     elif CLASSES['seen'][0] in MVTEC.CLASS_NAMES:  # from mvtec to other datasets
         train_dataset1 = MVTEC(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
                                normalize="w50",
@@ -237,10 +266,20 @@ def main(args):
             current_epoch_class_data_for_saving = {}
                     
             for class_name_eval in CLASSES['unseen']:
+            　
                 if class_name_eval in MVTEC.CLASS_NAMES:
                     test_dataset = MVTEC(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                          normalize='imagebind',
                                          img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+                elif args.dataset_class == 'bottle':
+                    test_dataset = MVTECBOTTLE(args.test_dataset_dir, class_name=class_name_eval, train=False,
+                                         normalize='imagebind',
+                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+                   elif args.dataset_class == 'screw':
+                    test_dataset = MVTECSCREW(args.test_dataset_dir, class_name=class_name_eval, train=False,
+                                         normalize='imagebind',
+                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)         
+                            
                 elif class_name_eval in VISA.CLASS_NAMES:
                     test_dataset = VISA(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                         normalize='imagebind',
@@ -433,7 +472,8 @@ if __name__ == "__main__":
     parser.add_argument('--eval_freq', type=int, default=1)
     parser.add_argument('--backbone', type=str, default="imagebind")
     parser.add_argument('--residual', type = True, default=True)
-    
+    parser.add_argument('--dataset_class', type=str, default='all')
+            
     # flow parameters
     parser.add_argument('--flow_arch', type=str, default='flow_model')
     parser.add_argument('--feature_levels', default=4, type=int)
@@ -443,7 +483,6 @@ if __name__ == "__main__":
     parser.add_argument('--pos_beta', type=float, default=0.05)
     parser.add_argument('--margin_tau', type=float, default=0.1)
     parser.add_argument('--bgspp_lambda', type=float, default=1)
-    
     parser.add_argument('--fdm_alpha', type=float, default=0.4)  # low value, more training distribution
     parser.add_argument('--num_embeddings', type=int, default=1536)  # VQ embeddings
     parser.add_argument("--train_ref_shot", type=int, default=4)
