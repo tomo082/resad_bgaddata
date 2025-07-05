@@ -82,7 +82,7 @@ def main(args):
         train_loader1 = DataLoader(
             train_dataset1, batch_size=args.batch_size, shuffle=True, num_workers=8, drop_last=True
         )
-        train_dataset2 = MVTECBSCREWANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
+        train_dataset2 = MVTECSCREWANO(args.train_dataset_dir, class_name=CLASSES['seen'], train=True, 
                                normalize='w50',
                                img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
         train_loader2 = DataLoader(
