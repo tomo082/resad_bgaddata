@@ -42,7 +42,7 @@ FIRST_STAGE_EPOCH = 1
 SETTINGS = {'visa_to_mvtec': VISA_TO_MVTEC, 'mvtec_to_visa': MVTEC_TO_VISA,
             'mvtec_to_btad': MVTEC_TO_BTAD, 'mvtec_to_mvtec3d': MVTEC_TO_MVTEC3D,
             'mvtec_to_mpdd': MVTEC_TO_MPDD, 'mvtec_to_mvtecloco': MVTEC_TO_MVTECLOCO,
-            'mvtec_to_brats': MVTEC_TO_BRATS, 'mvtec_to_mvtec': MVTEC_TO_MVTEC,'mvtecfew_to_mvtec': MVTECFEW_TO_MVTEC,'bottle_to_bottle':BOTTLE_TO_BOTTLE,  'screw_to_screw':SCREW_TO_SCREW}
+            'mvtec_to_brats': MVTEC_TO_BRATS, 'mvtec_to_mvtec': MVTEC_TO_MVTEC,'mvtecfew_to_mvtec': MVTECFEW_TO_MVTEC,'bottle_to_bottle':BOTTLE_TO_BOTTLE,  'screw_to_screw':SCREW_TO_SCREW,'capsule_to_capsule':CAPSULE_TO_CAPSULE}
 
 
 def main(args):
