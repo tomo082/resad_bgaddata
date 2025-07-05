@@ -22,6 +22,7 @@ from datasets.brats import BRATS
 from datasets.mvtec_fewclass import MVTECFEWANO, MVTECFEW
 from datasets.mvtec_bottle import MVTECBOTTLEANO, MVTECBOTTLE
 from datasets.mvtec_screw import MVTECSCREWANO, MVTECSCREW
+from datasets.mvtec_capsule import MVTECCAPSULEANO, MVTECCAPSULE
 
 from models.fc_flow import load_flow_model
 from models.imagebind import ImageBindModel
@@ -31,7 +32,7 @@ from utils import init_seeds, get_residual_features, get_mc_matched_ref_features
 from utils import BoundaryAverager
 from losses.loss import calculate_log_barrier_bi_occ_loss, calculate_orthogonal_regularizer
 from classes import VISA_TO_MVTEC, MVTEC_TO_VISA, MVTEC_TO_BTAD, MVTEC_TO_MVTEC3D
-from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC,MVTECFEW_TO_MVTEC,BOTTLE_TO_BOTTLE, SCREW_TO_SCREW
+from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC,MVTECFEW_TO_MVTEC,BOTTLE_TO_BOTTLE, SCREW_TO_SCREW,CAPSULE_TO_CAPSULE
 # visualizerのインポート
 from visualizer import Visualizer, denormalization 
 
