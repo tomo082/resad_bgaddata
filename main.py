@@ -20,6 +20,7 @@ from datasets.brats import BRATS
 from datasets.mvtec_fewclass import MVTECFEWANO, MVTECFEW
 from datasets.mvtec_bottle import MVTECBOTTLEANO, MVTECBOTTLE
 from datasets.mvtec_screw import MVTECSCREWANO, MVTECSCREW
+from datasets.mvtec_capsule import MVTECCAPSULEANO, MVTECCAPSULE
 
 
 from models.fc_flow import load_flow_model
@@ -29,7 +30,7 @@ from utils import init_seeds, get_residual_features, get_mc_matched_ref_features
 from utils import BoundaryAverager
 from losses.loss import calculate_log_barrier_bi_occ_loss
 from classes import VISA_TO_MVTEC, MVTEC_TO_VISA, MVTEC_TO_BTAD, MVTEC_TO_MVTEC3D
-from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC, MVTECFEW_TO_MVTEC,BOTTLE_TO_BOTTLE, SCREW_TO_SCREW
+from classes import MVTEC_TO_MPDD, MVTEC_TO_MVTECLOCO, MVTEC_TO_BRATS, MVTEC_TO_MVTEC, MVTECFEW_TO_MVTEC,BOTTLE_TO_BOTTLE, SCREW_TO_SCREW,CAPSULE_TO_CAPSULE
 # visualizerのインポート
 from visualizer import Visualizer, denormalization 
 warnings.filterwarnings('ignore')
@@ -39,7 +40,7 @@ FIRST_STAGE_EPOCH = 10
 SETTINGS = {'visa_to_mvtec': VISA_TO_MVTEC, 'mvtec_to_visa': MVTEC_TO_VISA,
             'mvtec_to_btad': MVTEC_TO_BTAD, 'mvtec_to_mvtec3d': MVTEC_TO_MVTEC3D,
             'mvtec_to_mpdd': MVTEC_TO_MPDD, 'mvtec_to_mvtecloco': MVTEC_TO_MVTECLOCO,
-            'mvtec_to_brats': MVTEC_TO_BRATS,'mvtec_to_mvtec': MVTEC_TO_MVTEC, 'mvtecfew_to_mvtec': MVTECFEW_TO_MVTEC,'bottle_to_bottle':BOTTLE_TO_BOTTLE,  'screw_to_screw':SCREW_TO_SCREW}
+            'mvtec_to_brats': MVTEC_TO_BRATS,'mvtec_to_mvtec': MVTEC_TO_MVTEC, 'mvtecfew_to_mvtec': MVTECFEW_TO_MVTEC,'bottle_to_bottle':BOTTLE_TO_BOTTLE,  'screw_to_screw':SCREW_TO_SCREW, 'capsule_to_capsule':CAPSULE_TO_CAPSULE}
 
 
 def main(args):
