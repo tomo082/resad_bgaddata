@@ -242,6 +242,14 @@ def main(args):
                     test_dataset = MVTEC(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                          normalize='w50',
                                          img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+                elif args.dataset_class == 'bottle':
+                    test_dataset = MVTECBOTTLE(args.test_dataset_dir, class_name=class_name_eval, train=False,
+                                         normalize='w50',
+                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+                   elif args.dataset_class == 'screw':
+                    test_dataset = MVTECSCREW(args.test_dataset_dir, class_name=class_name_eval, train=False,
+                                         normalize='w50',
+                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)    
                 elif class_name_eval in VISA.CLASS_NAMES:
                     test_dataset = VISA(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                         normalize='w50',
