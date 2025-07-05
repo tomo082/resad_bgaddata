@@ -246,7 +246,7 @@ def main(args):
                     test_dataset = MVTECBOTTLE(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                          normalize='w50',
                                          img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
-                   elif args.dataset_class == 'screw':
+                elif args.dataset_class == 'screw':
                     test_dataset = MVTECSCREW(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                          normalize='w50',
                                          img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)    
