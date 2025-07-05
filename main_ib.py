@@ -266,20 +266,19 @@ def main(args):
             current_epoch_class_data_for_saving = {}
                     
             for class_name_eval in CLASSES['unseen']:
-            　
-                if class_name_eval in MVTEC.CLASS_NAMES:
-                    test_dataset = MVTEC(args.test_dataset_dir, class_name=class_name_eval, train=False,
-                                         normalize='imagebind',
-                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
-                elif args.dataset_class == 'bottle':
+                if args.dataset_class == 'bottle':
                     test_dataset = MVTECBOTTLE(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                          normalize='imagebind',
                                          img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
                 elif args.dataset_class == 'screw':
                     test_dataset = MVTECSCREW(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                          normalize='imagebind',
-                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)         
-                            
+                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)                     　
+                elif class_name_eval in MVTEC.CLASS_NAMES:
+                    test_dataset = MVTEC(args.test_dataset_dir, class_name=class_name_eval, train=False,
+                                         normalize='imagebind',
+                                         img_size=224, crp_size=224, msk_size=224, msk_crp_size=224)
+                  
                 elif class_name_eval in VISA.CLASS_NAMES:
                     test_dataset = VISA(args.test_dataset_dir, class_name=class_name_eval, train=False,
                                         normalize='imagebind',
