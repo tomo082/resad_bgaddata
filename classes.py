@@ -54,5 +54,5 @@ BOTTLE_TO_BOTTLE = {'seen': ['bottle'],
 
 SCREW_TO_SCREW = {'seen': ['screw'],
                   'unseen': ['screw']}
-SCREW_TO_CAPSULE = {'seen': ['capsule'],
+CAPSULE_TO_CAPSULE = {'seen': ['capsule'],
                   'unseen': ['capsule']}
