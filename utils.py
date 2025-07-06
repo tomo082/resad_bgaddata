@@ -144,7 +144,80 @@ def load_and_transform_vision_data(image_paths, device):
         image_ouputs.append(image)
     return torch.stack(image_ouputs, dim=0)
 
+def get_mc_matched_ref_features(features: List[torch.Tensor], class_names: List[str],
+                                ref_features: Dict[str, List[torch.Tensor]]) -> List[torch.Tensor]:
+    """
+    複数のクラスの一致する参照特徴量を取得します。
+    大規模な参照特徴量セットを処理するために、coreset_nをバッチ処理するように修正されました。
+    """
+    matched_ref_features = [[] for _ in range(len(features))]
+    
+    # GPUメモリ容量に合わせてこの値を調整してください。
+    # 少なめの値から始め、メモリに余裕があれば増やしていくのが良いでしょう。
+    # これは、一度に処理される参照特徴ベクトルの数を決定します。
+    CORESET_BATCH_SIZE = 4096 # 例: 256/512/1024次元の特徴量の場合、これが良い出発点となるかもしれません。
+                               # これでもメモリ不足になる場合は、さらに小さくしてください。
 
+    for idx, c in enumerate(class_names):  # featuresの現在のバッチ内の各画像に対して
+        ref_features_c = ref_features[c] # 現在のクラス 'c' の参照特徴量を取得
+        
+        for layer_id in range(len(features)):  # 1つの画像のすべての層に対して
+            # 現在の単一画像のこの層の特徴量を抽出 (Batch=1, C, H, W)
+            feature = features[layer_id][idx:idx+1] 
+            _, C, H, W = feature.shape
+            
+            # 入力画像のパッチ特徴量を (H*W, C) に整形し、正規化 (N1=H*W)
+            feature_n = F.normalize(feature.permute(0, 2, 3, 1).reshape(-1, C).contiguous(), p=2, dim=1) # (H*W, C)
+
+            # このクラスと層の全参照特徴量 (N2_total, C)
+            coreset = ref_features_c[layer_id] 
+            
+            # coresetが空の場合の処理: 参照特徴量がない場合のエラー回避
+            if coreset.shape[0] == 0:
+                # この単一画像に対して期待される形状 (C, H, W) の空のテンソルを追加
+                matched_ref_features[layer_id].append(torch.empty(C, H, W, device=feature.device))
+                continue
+
+            # 全coresetを正規化 (N2_total, C)
+            coreset_n_total = F.normalize(coreset, p=2, dim=1) 
+            
+            # --- 距離計算のための coreset_n_total のバッチ処理 ---
+            all_dist_chunks = []
+            num_coreset_vectors = coreset_n_total.shape[0]
+
+            # coresetをバッチでイテレート
+            # tqdm.tqdm を追加すると進捗状況が表示されます (utils.py のトップに import tqdm を追加してください)
+            # desc=f"Matching {c} Layer {layer_id} for image {idx}"
+            for coreset_start_idx in range(0, num_coreset_vectors, CORESET_BATCH_SIZE):
+                coreset_end_idx = min(coreset_start_idx + CORESET_BATCH_SIZE, num_coreset_vectors)
+                coreset_batch_n = coreset_n_total[coreset_start_idx:coreset_end_idx] # (Actual_Batch_Size, C)
+                
+                # 現在のcoresetバッチに対する距離を計算
+                # (H*W, C) @ (C, Actual_Batch_Size) = (H*W, Actual_Batch_Size)
+                dist_chunk = torch.matmul(feature_n, coreset_batch_n.T)
+                all_dist_chunks.append(dist_chunk)
+            
+            # 全ての距離チャンクを結合し、完全な距離行列 (H*W, N2_total) を形成
+            # これにより、'dist' テンソル自体がピークメモリを超えるのを防ぎます。
+            dist = torch.cat(all_dist_chunks, dim=1) 
+            
+            # 入力画像内の各パッチに対して、最も近い参照特徴量のインデックスを検索
+            cidx = torch.argmax(dist, dim=1) # (H*W,) - 最も近いcoresetベクトルのインデックス
+
+            # これらのインデックスを使用して、元のcoresetから実際の（非正規化された）特徴量を選択
+            index_feats = coreset[cidx] # (H*W, C) - coresetから選択された特徴量
+
+            # マッチした特徴量を、単一画像に対する期待される (C, H, W) フォーマットに再整形
+            index_feats = index_feats.reshape(H, W, C).permute(2, 0, 1) # (C, H, W)
+
+            # この画像と層の処理されたマッチ特徴量を追加
+            matched_ref_features[layer_id].append(index_feats)
+            
+    # 各層で収集された特徴量をバッチ形式 (B, C, H, W) にスタック
+    matched_ref_features = [torch.stack(item, dim=0) for item in matched_ref_features]
+    
+    return matched_ref_features
+"""
 def get_mc_matched_ref_features(features: List[Tensor], class_names: List[str],
                                 ref_features: Dict[str, List[Tensor]]) -> List[Tensor]:
     """
@@ -171,7 +244,7 @@ def get_mc_matched_ref_features(features: List[Tensor], class_names: List[str],
     matched_ref_features = [torch.stack(item, dim=0) for item in matched_ref_features]
     
     return matched_ref_features
-
+"""
 
 def calculate_metrics(scores, labels, gt_masks, pro=True, only_max_value=True):
     """
