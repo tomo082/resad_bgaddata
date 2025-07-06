@@ -155,7 +155,7 @@ def get_mc_matched_ref_features(features: List[torch.Tensor], class_names: List[
     # GPUメモリ容量に合わせてこの値を調整してください。
     # 少なめの値から始め、メモリに余裕があれば増やしていくのが良いでしょう。
     # これは、一度に処理される参照特徴ベクトルの数を決定します。
-    CORESET_BATCH_SIZE = 4096 # 例: 256/512/1024次元の特徴量の場合、これが良い出発点となるかもしれません。
+    CORESET_BATCH_SIZE = 2048 # 例: 256/512/1024次元の特徴量の場合、これが良い出発点となるかもしれません。
                                # これでもメモリ不足になる場合は、さらに小さくしてください。
 
     for idx, c in enumerate(class_names):  # featuresの現在のバッチ内の各画像に対して
