@@ -94,7 +94,7 @@ def get_random_normal_images(root, class_name, num_shot=4):
     else:
         raise ValueError('Unrecognized class_name!')
     filenames = os.listdir(root_dir)
-    if num_shot ==0 :
+    if num_shot <=0 :
         # すべての正常画像パスを取得
         normal_paths = [os.path.join(root_dir, f) for f in filenames if f.endswith(('.png', '.jpg', '.bmp'))]      
     else:
