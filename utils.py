@@ -85,7 +85,7 @@ def load_reference_features(root_dir: str, class_name: str, device: torch.device
     
     return layer1_refs, layer2_refs, layer3_refs
 
-
+#7/6 すべての正常画像を参照できるように変更
 def get_random_normal_images(root, class_name, num_shot=4):
     if class_name in MVTEC.CLASS_NAMES:
         root_dir = os.path.join(root, class_name, 'train', 'good')
@@ -94,12 +94,17 @@ def get_random_normal_images(root, class_name, num_shot=4):
     else:
         raise ValueError('Unrecognized class_name!')
     filenames = os.listdir(root_dir)
-    n_idxs = np.random.randint(len(filenames), size=num_shot)
-    n_idxs = n_idxs.tolist()
-    normal_paths = []
-    for n_idx in n_idxs:
-        normal_paths.append(os.path.join(root_dir, filenames[n_idx]))
-    
+    if num_shot ==0 :
+        # すべての正常画像パスを取得
+        normal_paths = [os.path.join(root_dir, f) for f in filenames if f.endswith(('.png', '.jpg', '.bmp'))]      
+    else:
+        # 既存のランダム選択ロジック
+        n_idxs = np.random.randint(len(filenames), size=num_shot)
+        n_idxs = n_idxs.tolist()
+        normal_paths = []
+        for n_idx in n_idxs:
+            normal_paths.append(os.path.join(root_dir, filenames[n_idx]))        
+        
     return normal_paths
 
 
