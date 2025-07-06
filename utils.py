@@ -221,7 +221,7 @@ def get_mc_matched_ref_features(features: List[torch.Tensor], class_names: List[
 def get_mc_matched_ref_features(features: List[Tensor], class_names: List[str],
                                 ref_features: Dict[str, List[Tensor]]) -> List[Tensor]:
     """
-    Get matched reference features for multiple classes.
+    #Get matched reference features for multiple classes.
     """
     matched_ref_features = [[] for _ in range(len(features))]
     for idx, c in enumerate(class_names):  # for each image
