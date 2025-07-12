@@ -167,7 +167,12 @@ def main(args):
 #data aug を適応するならここ? supervisedだからあまり意味ない?
         for step, batch in enumerate(train_loader):
             progress_bar.update(1)
-            images, _, masks, class_names, anomaly_types = batch
+            if args.train_dataset == visa:
+                images, _, masks, class_names = batch
+            else:
+                images, _, masks, class_names, anomaly_types = batch
+                        
+
             
             images = images.to(args.device)
             masks = masks.to(args.device)
