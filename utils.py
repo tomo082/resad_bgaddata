@@ -210,10 +210,10 @@ def calculate_metrics(scores, labels, gt_masks, pro=True, only_max_value=True):
         img_f1_scores.append(img_f1_score)
     img_ap, img_auc, img_f1_score = np.max(img_aps), np.max(img_aucs), np.max(img_f1_scores)
         
-    if pro:
-        pix_aupro = calculate_aupro(gt_masks, scores)
-    else:
-        pix_aupro = -1
+    #元々はauproを-1で固定
+    
+    pix_aupro = calculate_aupro(gt_masks, scores)
+
     
     return img_auc, img_ap, img_f1_score, pix_auc, pix_ap, pix_f1_score, pix_aupro
 
