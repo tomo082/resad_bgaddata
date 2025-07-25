@@ -21,12 +21,12 @@ def validate(args, encoder, vq_ops, constraintor, estimators, test_loader, ref_f
         estimator.eval()
         
     # UMAP可視化のために追加するリスト
-    all_features_to_return = []
-    all_anomaly_types_to_return = []
-    all_gts_to_return = [] # 0/1の画像レベルのラベル    
+    #all_features_to_return = []
+    #all_anomaly_types_to_return = []
+    #all_gts_to_return = [] # 0/1の画像レベルのラベル    
     # 可視化のために追加
-    all_images_raw = [] # 生の画像データ
-    all_scores_map = [] # スコアマップ
+    #all_images_raw = [] # 生の画像データ
+    #all_scores_map = [] # スコアマップ
 
     label_list, gt_mask_list = [], []
     logps1_list = [list() for _ in range(args.feature_levels)]
@@ -72,14 +72,14 @@ def validate(args, encoder, vq_ops, constraintor, estimators, test_loader, ref_f
              # --- UMAP可視化のために特徴量と異常タイプ名を収集 ---
             # ここで、UMAPに渡す特徴量を決定します。
             # 通常、最も深い層（最後の要素）の特徴量をフラットにして使います。
-            fdm_features = vq_ops(rfeatures, train=False)
-            rfeatures = applying_EFDM(rfeatures, fdm_features, alpha=args.fdm_alpha)
-            rfeatures = constraintor(*rfeatures) 
+           # fdm_features = vq_ops(rfeatures, train=False)
+            #rfeatures = applying_EFDM(rfeatures, fdm_features, alpha=args.fdm_alpha)
+            #rfeatures = constraintor(*rfeatures) 
             
-            current_features_flat = rfeatures[-1].cpu().numpy().reshape(image.shape[0], -1)
-            all_features_to_return.append(current_features_flat)
-            all_anomaly_types_to_return.extend(anomaly_type_batch) # リストのままextend
-            all_gts_to_return.extend(label.cpu().numpy()) # labelは0/1のGTラベル
+           # current_features_flat = rfeatures[-1].cpu().numpy().reshape(image.shape[0], -1)
+            #all_features_to_return.append(current_features_flat)
+            #all_anomaly_types_to_return.extend(anomaly_type_batch) # リストのままextend
+            #all_gts_to_return.extend(label.cpu().numpy()) # labelは0/1のGTラベル
 
             
             for l in range(args.feature_levels):
@@ -124,13 +124,13 @@ def validate(args, encoder, vq_ops, constraintor, estimators, test_loader, ref_f
     metrics['scores2'] = [img_auc2, img_ap2, img_f1_score2, pix_auc2, pix_ap2, pix_f1_score2, pix_aupro2]
     metrics['scores'] = [img_auc, img_ap, img_f1_score, pix_auc, pix_ap, pix_f1_score, pix_aupro]
     # UMAP可視化のために追加した戻り値
-    metrics['features'] = np.concatenate(all_features_to_return, axis=0)
-    metrics['anomaly_types'] = np.array(all_anomaly_types_to_return, dtype=object) # 文字列を含むのでobject型
-    metrics['gts_labels'] = np.array(all_gts_to_return) # 0/1のGTラベル
+    #metrics['features'] = np.concatenate(all_features_to_return, axis=0)
+    #metrics['anomaly_types'] = np.array(all_anomaly_types_to_return, dtype=object) # 文字列を含むのでobject型
+    #metrics['gts_labels'] = np.array(all_gts_to_return) # 0/1のGTラベル
     # 可視化のために追加
-    metrics['images_raw'] = np.concatenate(all_images_raw, axis=0)
-    metrics['scores_map'] = scores
-    metrics['gt_masks_raw'] = gt_masks    
+    #metrics['images_raw'] = np.concatenate(all_images_raw, axis=0)
+    #metrics['scores_map'] = scores
+    #metrics['gt_masks_raw'] = gt_masks    
     return metrics
 
 
