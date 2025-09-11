@@ -426,6 +426,8 @@ if __name__ == "__main__":
     parser.add_argument('--backbone', type=str, default="wide_resnet50_2")
     parser.add_argument('--residual', type=str, default=True)
     parser.add_argument('--dataset_class', type=str, default='all')
+    parser.add_argument('--class_name', type=str, default='all')
+    
 
     
     # flow parameters
