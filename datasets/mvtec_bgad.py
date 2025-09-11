@@ -10,8 +10,8 @@ from torch.utils.data import Dataset
 from torchvision import transforms as T
 import imgaug.augmenters as iaa
 import albumentations as A
-from .perlin import rand_perlin_2d_np
-from .nsa import patch_ex
+#from .perlin import rand_perlin_2d_np
+#from .nsa import patch_ex
 from skimage.segmentation import mark_boundaries
 
 
