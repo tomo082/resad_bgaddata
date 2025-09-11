@@ -427,6 +427,8 @@ if __name__ == "__main__":
     parser.add_argument('--residual', type=str, default=True)
     parser.add_argument('--dataset_class', type=str, default='all')
     parser.add_argument('--class_name', type=str, default='all')
+    parser.add_argument('--data_strategy', default='0,1', type=str,
+                        help='0: Repeated Utilization; 1: RandAugmented CutPaste; 2: RandAugmented CutPaste-Pseudo')
     
 
     
