@@ -5,8 +5,7 @@ from .mvtec_3d import MVTEC3D, get_normal_image_paths_mvtec3d
 from .mvtec_loco import MVTECLOCO
 from .visa import VISA, get_normal_image_paths_visa
 import torch
-from .mvtec import MVTEC_CLASS_NAMES, MVTecDataset, MVTecFSCopyPasteDataset, MVTecFSDataset, MVTecPseudoDataset, MVTecAnomalyDataset
-from .btad import BTAD_CLASS_NAMES, BTADDataset, BTADFSDataset, BTADFSCopyPasteDataset
+from .mvtec_bgad import MVTEC_CLASS_NAMES, MVTecDataset, MVTecFSCopyPasteDataset, MVTecFSDataset, MVTecPseudoDataset, MVTecAnomalyDataset
 from .utils import BalancedBatchSampler
 
 __all__ = ['MVTEC', 'MVTECANO', 'BTAD', 'MVTEC3D', 'MVTECLOCO', 'VISA']
