@@ -6,6 +6,7 @@ from .mvtec_loco import MVTECLOCO
 from .visa import VISA, get_normal_image_paths_visa
 import torch
 from .mvtec_bgad import MVTEC_CLASS_NAMES, MVTecDataset, MVTecFSCopyPasteDataset, MVTecFSDataset, MVTecPseudoDataset, MVTecAnomalyDataset
+from .btad_bgad import  BTADDataset, BTADFSDataset,BTADFSCopyPasteDataset
 from .utils_bgad import BalancedBatchSampler
 
 __all__ = ['MVTEC', 'MVTECANO', 'BTAD', 'MVTEC3D', 'MVTECLOCO', 'VISA']
